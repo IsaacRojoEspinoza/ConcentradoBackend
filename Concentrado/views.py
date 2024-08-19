@@ -107,31 +107,54 @@ def Home_view(request):
 
     return JsonResponse(data)
 
-def avanceApi(request,id=0):
-    if request.method=='GET':
-        avance = Avance.objects.all()
-        avance_serializer=AvanceSerializer(avance,many=True)
-        return JsonResponse(avance_serializer.data,safe=False)
-    elif request.method=='POST':
-        avance_data=JSONParser().parse(request)
-        avance_serializer=AvanceSerializer(data=avance_data)
+def avanceApi(request, id=0):
+    if request.method == 'GET':
+        # Captura de parámetros de búsqueda
+        entidad = request.GET.get('entidad', None)
+        nombreEntidad = request.GET.get('nombreEntidad', None)
+        distrito = request.GET.get('distrito', None)
+
+        # Filtrado basado en los parámetros de búsqueda
+        avance_query = Avance.objects.all()
+
+        if entidad:
+            avance_query = avance_query.filter(entidad__icontains=entidad)
+        if nombreEntidad:
+            avance_query = avance_query.filter(nombreEntidad__icontains=nombreEntidad)
+        if distrito:
+            if entidad or nombreEntidad:  # Solo filtra por distrito si entidad o nombreEntidad están presentes
+                avance_query = avance_query.filter(distrito__icontains=distrito)
+
+        avance_serializer = AvanceSerializer(avance_query, many=True)
+        return JsonResponse(avance_serializer.data, safe=False)
+
+    elif request.method == 'POST':
+        avance_data = JSONParser().parse(request)
+        avance_serializer = AvanceSerializer(data=avance_data)
         if avance_serializer.is_valid():
             avance_serializer.save()
-            return JsonResponse("Added Successfully",safe=False)
-        return JsonResponse("Failed to Add",safe=False)
-    elif request.method=='PUT':
-        avance_data=JSONParser().parse(request)
-        avance=Avance.objects.get(id=id)
-        avance_serializer=AvanceSerializer(avance,data=avance_data)
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed to Add", safe=False)
+
+    elif request.method == 'PUT':
+        avance_data = JSONParser().parse(request)
+        try:
+            avance = Avance.objects.get(id=id)
+        except Avance.DoesNotExist:
+            return JsonResponse("Record Not Found", safe=False)
+        avance_serializer = AvanceSerializer(avance, data=avance_data)
         if avance_serializer.is_valid():
             avance_serializer.save()
-            return JsonResponse("Updated Successfully",safe=False)
-        return JsonResponse("Failed to Update")
-    elif request.method=='DELETE':
-        avance=Avance.objects.get(id=id)
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", safe=False)
+
+    elif request.method == 'DELETE':
+        try:
+            avance = Avance.objects.get(id=id)
+        except Avance.DoesNotExist:
+            return JsonResponse("Record Not Found", safe=False)
         avance.delete()
-        return JsonResponse("Deleted Successfully",safe=False)
-    
+        return JsonResponse("Deleted Successfully", safe=False)
 
 # Register API
 class RegisterAPI(generics.GenericAPIView):
