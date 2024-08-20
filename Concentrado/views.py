@@ -114,17 +114,18 @@ def avanceApi(request, id=0):
         nombreEntidad = request.GET.get('nombreEntidad', None)
         distrito = request.GET.get('distrito', None)
 
-        # Filtrado basado en los parámetros de búsqueda
+        # Inicia la consulta con todos los registros
         avance_query = Avance.objects.all()
 
+        # Filtrado basado en los parámetros de búsqueda
         if entidad:
             avance_query = avance_query.filter(entidad__icontains=entidad)
         if nombreEntidad:
             avance_query = avance_query.filter(nombreEntidad__icontains=nombreEntidad)
         if distrito:
-            if entidad or nombreEntidad:  # Solo filtra por distrito si entidad o nombreEntidad están presentes
-                avance_query = avance_query.filter(distrito__icontains=distrito)
+            avance_query = avance_query.filter(distrito__icontains=distrito)
 
+        # Serialización y respuesta
         avance_serializer = AvanceSerializer(avance_query, many=True)
         return JsonResponse(avance_serializer.data, safe=False)
 

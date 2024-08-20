@@ -1,10 +1,7 @@
-from django.contrib import admin
-from .models import Task, Avance
-from .resources import AvanceResource
 from import_export.admin import ImportExportModelAdmin
-
-# Registrar el modelo Task en el panel de administración
-admin.site.register(Task)
+from django.contrib import admin
+from .models import Avance
+from .resources import AvanceResource  # Asegúrate de que el recurso esté importado correctamente
 
 class AvanceAdmin(ImportExportModelAdmin):
     resource_class = AvanceResource
@@ -16,10 +13,11 @@ class AvanceAdmin(ImportExportModelAdmin):
         search_term = search_term.strip()
         if search_term:
             queryset = queryset.filter(
-                entidad__iexact=search_term
+                entidad__icontains=search_term
             ) | queryset.filter(
-                nombreEntidad__iexact=search_term
+                nombreEntidad__icontains=search_term
             )
+        # No se realiza ningún filtrado adicional si no hay término de búsqueda
         return queryset, False  # El segundo valor False indica que no se han realizado correcciones de búsqueda.
 
     def get_search_fields(self, request):
