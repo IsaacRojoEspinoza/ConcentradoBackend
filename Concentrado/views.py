@@ -107,7 +107,7 @@ def Home_view(request):
 
     return JsonResponse(data)
 
-def avanceApi(request, id=0):
+def avanceApi(request):
     if request.method == 'GET':
         # Captura de parámetros de búsqueda
         entidad = request.GET.get('entidad', None)
@@ -119,7 +119,7 @@ def avanceApi(request, id=0):
 
         # Filtrado basado en los parámetros de búsqueda
         if entidad:
-            avance_query = avance_query.filter(entidad__icontains=entidad)
+            avance_query = avance_query.filter(entidad__exact=entidad)
         if nombreEntidad:
             avance_query = avance_query.filter(nombreEntidad__icontains=nombreEntidad)
         if distrito:
@@ -140,7 +140,7 @@ def avanceApi(request, id=0):
     elif request.method == 'PUT':
         avance_data = JSONParser().parse(request)
         try:
-            avance = Avance.objects.get(id=id)
+            avance = Avance.objects.get(id=avance_data.get('id'))
         except Avance.DoesNotExist:
             return JsonResponse("Record Not Found", safe=False)
         avance_serializer = AvanceSerializer(avance, data=avance_data)
@@ -151,7 +151,7 @@ def avanceApi(request, id=0):
 
     elif request.method == 'DELETE':
         try:
-            avance = Avance.objects.get(id=id)
+            avance = Avance.objects.get(id=request.GET.get('id'))
         except Avance.DoesNotExist:
             return JsonResponse("Record Not Found", safe=False)
         avance.delete()
