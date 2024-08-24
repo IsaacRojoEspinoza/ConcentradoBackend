@@ -1,22 +1,11 @@
 from rest_framework import serializers
-from Concentrado.models import Task, Student, Avance
+from Concentrado.models import Avance
 from django.contrib.auth.models import User
-
-class StudentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
-        fields = '__all__'
-
-class TaskSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Task
-        fields = '__all__'
 
 class AvanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avance
         fields = '__all__'
-
 
 #User Serializer
 class UserSerializer(serializers.ModelSerializer):

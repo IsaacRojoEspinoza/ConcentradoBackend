@@ -4,7 +4,7 @@ from .models import Avance  # Asegúrate de usar el nombre correcto del modelo
 class AvanceResource(resources.ModelResource):
     class Meta:
         model = Avance
-        fields = ('entidad','nombreEntidad','distrito','numeroDesignados','numeroInscritos','inscritosDesignados','ingreso','ingresoInscritos','sinIngreso','concluyeron','concluyeronDesignados')
+        fields = ('entidad','nombreEntidad','distrito','numeroDesignados','numeroInscritos','inscritosDesignados','conIngreso','conIngresoInscritos','sinIngreso','sinIngresoInscritos','concluyeron','concluyeronDesignados')
         import_id_fields = ()  # No importa el campo 'id'
 
     def import_row(self, row, *args, **kwargs):

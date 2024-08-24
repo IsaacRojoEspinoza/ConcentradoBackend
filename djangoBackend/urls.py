@@ -23,15 +23,8 @@ import knox.views
 from knox import views as knox_views
 
 urlpatterns = [
-    url(r'^student$',views.studentApi),
-    url(r'^student$',views.studentApi),
-    url(r'^student/([0-9]+)$',views.studentApi),
-    re_path(r'^task$',views.taskApi),
-    re_path(r'^task/([a-zA-Z0-9]+)$',views.taskApi),
     path('avance/', views.avanceApi),
-    re_path(r'^avance/([a-zA-Z0-9]+)$',views.avanceApi),
-    re_path(r'^avance/?entidad$',views.avanceApi),
-    path('home',views.Home_view),
+    path('avanceTotales/', views.Total_view),
     path('admin/', admin.site.urls),
     # path('', include('accounts.urls')),
     path('api/register/', views.RegisterAPI.as_view(), name='register'),
@@ -40,5 +33,4 @@ urlpatterns = [
     path('api/logoutall/',knox_views.LogoutAllView.as_view(), name='logoutall'),
     path('check/', views.check_user, name='check token'),
     path('user/',userView.userViewSet.as_view()),
-    path('admin/', admin.site.urls),
 ]
