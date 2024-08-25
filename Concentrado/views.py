@@ -4,7 +4,7 @@ from django.http.response import JsonResponse
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from Concentrado.serializers import AvanceSerializer
-from Concentrado.models import  Avance
+from Concentrado.models import  Avance,Nivel
 from datetime import date
 from django.http import JsonResponse
 from django.db.models import Count,Sum
@@ -175,6 +175,34 @@ def avanceApi(request):
         avance.delete()
         return JsonResponse("Deleted Successfully", safe=False)
 
+def nivelApi(request):
+    if request.method == 'GET':
+        # Captura de parámetros de búsqueda
+        entidad = request.GET.get('entidad', None)
+
+        # Inicia la consulta con todos los registros
+        avance_query = Nivel.objects.all()
+
+        # Filtrado basado en los parámetros de búsqueda
+        if entidad:
+            # Supongo que quieres obtener un único objeto en lugar de una lista
+            nivel = avance_query.filter(numeroEntidad__exact=entidad).first()
+            
+            if nivel:
+                # Construir un solo objeto de datos
+                data = {
+                    'numeroEntidad': nivel.numeroEntidad,
+                    'nivelEsperado': nivel.nivelEsperado,
+                    'nivelOptenido': nivel.nivelOptenido,
+                }
+            else:
+                # Si no se encuentra ningún objeto, devuelve un objeto vacío o error
+                data = {}
+        else:
+            # Si no se especifica entidad, devuelve un objeto vacío o error
+            data = {}
+
+        return JsonResponse(data)
 # Register API
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer

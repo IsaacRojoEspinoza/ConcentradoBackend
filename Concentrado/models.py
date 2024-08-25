@@ -16,15 +16,15 @@ class Avance(models.Model):
     # fee = models.IntegerField()
 
 class Entidad(models.Model):
-    numero= models.CharField(max_length=255,primary_key=True)
+    numero= models.IntegerField(primary_key=True)
     nombreEntidad = models.CharField(max_length=255)
     numeroDeDistritos = models.IntegerField()
-    Logo = models.FileField(upload_to='documentos/')
+    Logo = models.FileField(upload_to='public/assets')
     # fee = models.IntegerField()
     
 class Nivel(models.Model):
-    numeroEntidad= models.IntegerField()
-    nivelEsperado= models.IntegerField()
-    nivelOptenido= models.IntegerField()
+    numeroEntidad= models.IntegerField(primary_key=True)
+    nivelEsperado= models.DecimalField(max_digits=5, decimal_places=2)
+    nivelOptenido= models.DecimalField(max_digits=5, decimal_places=2)
     
     # fee = models.IntegerField()

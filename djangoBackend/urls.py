@@ -25,6 +25,7 @@ from knox import views as knox_views
 urlpatterns = [
     path('avance/', views.avanceApi),
     path('avanceTotales/', views.Total_view),
+    path('nivel/', views.nivelApi),
     path('admin/', admin.site.urls),
     # path('', include('accounts.urls')),
     path('api/register/', views.RegisterAPI.as_view(), name='register'),
