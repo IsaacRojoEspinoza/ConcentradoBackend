@@ -25,6 +25,6 @@ class Entidad(models.Model):
 class Nivel(models.Model):
     numeroEntidad= models.IntegerField(primary_key=True)
     nivelEsperado= models.DecimalField(max_digits=5, decimal_places=2)
-    nivelOptenido= models.DecimalField(max_digits=5, decimal_places=2)
+    nivelObtenido= models.DecimalField(max_digits=5, decimal_places=2)
     
     # fee = models.IntegerField()

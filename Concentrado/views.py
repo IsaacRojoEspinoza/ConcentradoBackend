@@ -193,7 +193,7 @@ def nivelApi(request):
                 data = {
                     'numeroEntidad': nivel.numeroEntidad,
                     'nivelEsperado': nivel.nivelEsperado,
-                    'nivelOptenido': nivel.nivelOptenido,
+                    'nivelObtenido': nivel.nivelObtenido,
                 }
             else:
                 # Si no se encuentra ningún objeto, devuelve un objeto vacío o error
