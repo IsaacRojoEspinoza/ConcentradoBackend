@@ -15,12 +15,22 @@ class Avance(models.Model):
     concluyeronDesignados = models.DecimalField(max_digits=5, decimal_places=2)
     # fee = models.IntegerField()
 
+# requiero que los campos de este modelo sean visibles en el adminpanel de django y que se puedan importar y exportar ya tengo instalada esta dependendencia django-import-export==4.1.1
+class Año(models.Model):
+    año = models.IntegerField(unique=True)
+
+    def __str__(self):
+        return str(self.año)
+
 class Entidad(models.Model):
-    numero= models.IntegerField(primary_key=True)
+    numero = models.IntegerField(primary_key=True)
     nombreEntidad = models.CharField(max_length=255)
     numeroDeDistritos = models.IntegerField()
-    Logo = models.FileField(upload_to='public/assets')
-    # fee = models.IntegerField()
+    logo_url = models.CharField(max_length=255)
+    años = models.ManyToManyField('Año', blank=True)
+
+    def __str__(self):
+        return self.nombreEntidad
     
 class Nivel(models.Model):
     numeroEntidad= models.IntegerField(primary_key=True)
