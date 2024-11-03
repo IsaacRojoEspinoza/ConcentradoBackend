@@ -3,147 +3,75 @@ from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from Concentrado.serializers import AvanceSerializer
-from Concentrado.models import  Avance,Nivel
-from datetime import date
-from django.http import JsonResponse
-from django.db.models import Count,Sum
+from .serializers import AvanceSerializer, NivelSerializer, UserSerializer, RegisterSerializer
+from .models import Avance, Nivel, Entidad, Periodo
+from django.db.models import Sum
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer
 from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 @csrf_exempt
-    
-# def Home_view(request):
-#     if request.method == 'GET':
-#         completed_task_count = Task.objects.filter(status='COMPLETED').count()
-#         ongoing_task_count = Task.objects.filter(status='RUNNING').count()
-#         failed_count = Task.objects.filter(status="FAILED").count()
+@api_view(['GET'])
+def Obtener_periodos_y_entidades(request):
+    periodos = Periodo.objects.all()
+    data = []
 
-#         all_tasks = Task.objects.all()
-#         current_year = date.today().year
-#         task_current_year = all_tasks.filter(startDate__year=current_year)
+    for periodo in periodos:
+        entidades = Entidad.objects.filter(avances__periodo=periodo).distinct()
+        data.append({
+            'periodo_id': periodo.id,
+            'anio_inicio': periodo.anio_inicio,
+            'anio_fin': periodo.anio_fin,
+            'entidades': [
+                {
+                    'id': entidad.numero,
+                    'nombre': entidad.nombre_entidad,
+                    'numero_de_distritos': entidad.numero_de_distritos,
+                    'logo': entidad.logo,
+                }
+                for entidad in entidades
+            ]
+        })
 
-#         tasks_by_month = task_current_year.values('startDate__month', 'status').annotate(task_count=Count('id'))
+    return Response(data)
 
-#         result = {}
-
-#     for month in range(1, 13):
-#         result[month] = {'completed': 0, 'running': 0, 'failed': 0}
-
-#     for task_data in tasks_by_month:
-#         month = task_data['startDate__month']
-#         status = task_data['status']
-#         task_count = task_data['task_count']
-
-#         if status == 'COMPLETED':
-#             result[month]['completed'] += task_count
-#         elif status == 'RUNNING':
-#             result[month]['running'] += task_count
-#         else:
-#             result[month]['failed'] += task_count
-
-#     data = {
-#         'completed_task_count': completed_task_count,
-#         'ongoing_task_count': ongoing_task_count,
-#         'failed_count': failed_count,
-#         'graph': result
-#     }
-
-#     return JsonResponse(data)
-def Total_view(request):
+def avance_totales_view(request):
     if request.method == 'GET':
-        entidad = request.GET.get('entidad', None)
-        if entidad:
-            # Filtrar por entidad
-            
-            queryset = Avance.objects.filter(entidad__exact=entidad)
-            
-            # Calcular sumas para cada campo deseado
-            totalDesignados = queryset.aggregate(total_sum=Sum('numeroDesignados'))['total_sum'] or 0
-            totalInscritos = queryset.aggregate(total_sum=Sum('numeroInscritos'))['total_sum'] or 0
-            totalIncritosDesignados = queryset.aggregate(total_sum=Sum('inscritosDesignados'))['total_sum'] or 0
-            totalConIngreso = queryset.aggregate(total_sum=Sum('conIngreso'))['total_sum'] or 0
-            totalConIngresoInscritos = queryset.aggregate(total_sum=Sum('conIngresoInscritos'))['total_sum'] or 0
-            totalSinIngreso = queryset.aggregate(total_sum=Sum('sinIngreso'))['total_sum'] or 0
-            totalSinIngresoInscritos = queryset.aggregate(total_sum=Sum('sinIngresoInscritos'))['total_sum'] or 0
-            totalConcluyeron = queryset.aggregate(total_sum=Sum('concluyeron'))['total_sum'] or 0
-            totalConcluyeronDesignados = queryset.aggregate(total_sum=Sum('concluyeronDesignados'))['total_sum'] or 0
+        entidad_id = request.GET.get('entidad', None)
+        queryset = Avance.objects.filter(entidad__numero=entidad_id) if entidad_id else Avance.objects.all()
 
-            # Preparar el diccionario con todas las sumas
-            data = {
-                'totalDesignados': totalDesignados,
-                'totalInscritos': totalInscritos,
-                'totalIncritosDesignados': totalIncritosDesignados,
-                'totalConIngreso': totalConIngreso,
-                'totalConIngresoInscritos': totalConIngresoInscritos,
-                'totalSinIngreso': totalSinIngreso,
-                'totalSinIngresoInscritos': totalSinIngresoInscritos,
-                'totalConcluyeron': totalConcluyeron,
-                'totalConcluyeronDesignados': totalConcluyeronDesignados,
-            }
-        else:
-            queryset = Avance.objects
-            totalDesignados = queryset.aggregate(total_sum=Sum('numeroDesignados'))['total_sum'] or 0
-            totalInscritos = queryset.aggregate(total_sum=Sum('numeroInscritos'))['total_sum'] or 0
-            totalIncritosDesignados = queryset.aggregate(total_sum=Sum('inscritosDesignados'))['total_sum'] or 0
-            totalConIngreso = queryset.aggregate(total_sum=Sum('conIngreso'))['total_sum'] or 0
-            totalConIngresoInscritos = queryset.aggregate(total_sum=Sum('conIngresoInscritos'))['total_sum'] or 0
-            totalSinIngreso = queryset.aggregate(total_sum=Sum('sinIngreso'))['total_sum'] or 0
-            totalSinIngresoInscritos = queryset.aggregate(total_sum=Sum('sinIngresoInscritos'))['total_sum'] or 0
-            totalConcluyeron = queryset.aggregate(total_sum=Sum('concluyeron'))['total_sum'] or 0
-            totalConcluyeronDesignados = queryset.aggregate(total_sum=Sum('concluyeronDesignados'))['total_sum'] or 0
-            
-            data = {
-                'totalDesignados': totalDesignados,
-                'totalInscritos': totalInscritos,
-                'totalIncritosDesignados': totalIncritosDesignados,
-                'totalConIngreso': totalConIngreso,
-                'totalConIngresoInscritos': totalConIngresoInscritos,
-                'totalSinIngreso': totalSinIngreso,
-                'totalSinIngresoInscritos': totalSinIngresoInscritos,
-                'totalConcluyeron': totalConcluyeron,
-                'totalConcluyeronDesignados': totalConcluyeronDesignados,
-            }
-    else:
-        # En caso de que el método de la solicitud no sea GET
         data = {
-            'totalDesignados': 0,
-            'totalInscritos': 0,
-            'totalIncritosDesignados': 0,
-            'totalConIngreso': 0,
-            'totalConIngresoInscritos': 0,
-            'totalSinIngreso': 0,
-            'totalSinIngresoInscritos': 0,
-            'totalConcluyeron': 0,
-            'totalConcluyeronDesignados': 0,
+            'total_designados': queryset.aggregate(total=Sum('numero_designados'))['total'] or 0,
+            'total_inscritos': queryset.aggregate(total=Sum('numero_inscritos'))['total'] or 0,
+            'total_inscritos_designados': queryset.aggregate(total=Sum('inscritos_designados'))['total'] or 0,
+            'total_con_ingreso': queryset.aggregate(total=Sum('con_ingreso'))['total'] or 0,
+            'total_con_ingreso_inscritos': queryset.aggregate(total=Sum('con_ingreso_inscritos'))['total'] or 0,
+            'total_sin_ingreso': queryset.aggregate(total=Sum('sin_ingreso'))['total'] or 0,
+            'total_sin_ingreso_inscritos': queryset.aggregate(total=Sum('sin_ingreso_inscritos'))['total'] or 0,
+            'total_concluyeron': queryset.aggregate(total=Sum('concluyeron'))['total'] or 0,
+            'total_concluyeron_designados': queryset.aggregate(total=Sum('concluyeron_designados'))['total'] or 0,
         }
 
-    return JsonResponse(data)
-
-def avanceApi(request):
+        return JsonResponse(data)
+@csrf_exempt
+def Avance_view(request):
     if request.method == 'GET':
-        # Captura de parámetros de búsqueda
-        entidad = request.GET.get('entidad', None)
-        nombreEntidad = request.GET.get('nombreEntidad', None)
+        entidad_id = request.GET.get('entidad', None)
+        nombre_entidad = request.GET.get('nombre_entidad', None)
         distrito = request.GET.get('distrito', None)
 
-        # Inicia la consulta con todos los registros
         avance_query = Avance.objects.all()
 
-        # Filtrado basado en los parámetros de búsqueda
-        if entidad:
-            avance_query = avance_query.filter(entidad__exact=entidad)
-        if nombreEntidad:
-            avance_query = avance_query.filter(nombreEntidad__icontains=nombreEntidad)
+        if entidad_id:
+            avance_query = avance_query.filter(entidad__numero=entidad_id)
+        if nombre_entidad:
+            avance_query = avance_query.filter(entidad__nombre_entidad__icontains=nombre_entidad)
         if distrito:
-            avance_query = avance_query.filter(distrito__icontains=distrito)
+            avance_query = avance_query.filter(distrito=distrito)
 
-        # Serialización y respuesta
         avance_serializer = AvanceSerializer(avance_query, many=True)
         return JsonResponse(avance_serializer.data, safe=False)
 
@@ -175,34 +103,30 @@ def avanceApi(request):
         avance.delete()
         return JsonResponse("Deleted Successfully", safe=False)
 
-def nivelApi(request):
+@csrf_exempt
+def Nivel_Api(request):
     if request.method == 'GET':
-        # Captura de parámetros de búsqueda
-        entidad = request.GET.get('entidad', None)
+        # Usa JSONParser para obtener los datos del cuerpo
+        data = JSONParser().parse(request)
+        entidad_id = data.get('entidad', None)  # Obtén el ID de la entidad desde el cuerpo
+        
+        response_data = {}
 
-        # Inicia la consulta con todos los registros
-        avance_query = Nivel.objects.all()
-
-        # Filtrado basado en los parámetros de búsqueda
-        if entidad:
-            # Supongo que quieres obtener un único objeto en lugar de una lista
-            nivel = avance_query.filter(numeroEntidad__exact=entidad).first()
-            
+        if entidad_id:
+            nivel = Nivel.objects.filter(entidad__numero=entidad_id).first()
             if nivel:
-                # Construir un solo objeto de datos
-                data = {
-                    'numeroEntidad': nivel.numeroEntidad,
-                    'nivelEsperado': nivel.nivelEsperado,
-                    'nivelObtenido': nivel.nivelObtenido,
+                response_data = {
+                    'numero_entidad': nivel.entidad.numero,
+                    'nivel_esperado': nivel.nivel_esperado,
+                    'nivel_obtenido': nivel.nivel_obtenido,
                 }
             else:
-                # Si no se encuentra ningún objeto, devuelve un objeto vacío o error
-                data = {}
+                response_data = {'error': 'No se encontró nivel para la entidad especificada.'}
         else:
-            # Si no se especifica entidad, devuelve un objeto vacío o error
-            data = {}
+            response_data = {'error': 'El ID de la entidad es requerido.'}
 
-        return JsonResponse(data)
+        return JsonResponse(response_data)
+
 # Register API
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -214,7 +138,6 @@ class RegisterAPI(generics.GenericAPIView):
         return Response({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": AuthToken.objects.create(user)[1]
-  
         })
 
 # Login API
@@ -224,21 +147,11 @@ class LoginAPI(KnoxLoginView):
     def post(self, request, format=None):
         serializer = AuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         user = serializer.validated_data['user']
         login(request, user)
-
-        # Call the parent class's post method to generate the token response
         return super(LoginAPI, self).post(request, format=None)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def check_user(request):
-    try:
-        return Response({
-            "details": "Token is valid"
-        }, status=status.HTTP_200_OK)
-    except KeyError:
-        return Response({
-            "details": "Token is invalid"
-        }, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"details": "Token is valid"}, status=status.HTTP_200_OK)

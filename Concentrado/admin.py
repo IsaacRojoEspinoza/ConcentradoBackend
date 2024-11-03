@@ -1,27 +1,39 @@
 from import_export.admin import ImportExportModelAdmin
 from django.contrib import admin
-from .models import Avance
-from .resources import AvanceResource  # Asegúrate de que el recurso esté importado correctamente
+from .models import Avance, Nivel, Entidad, Periodo
+from .resources import AvanceResource, NivelResource, EntidadResource, PeriodoResource
 
 class AvanceAdmin(ImportExportModelAdmin):
     resource_class = AvanceResource
-    search_fields = ['entidad', 'nombreEntidad']
+    search_fields = ['entidad__nombre_entidad']  # Asegúrate de que el nombre de campo es correcto
     list_filter = ['distrito']
-    list_display = ('entidad', 'nombreEntidad', 'distrito')
+    list_display = ('id','entidad', 'distrito', 'numero_designados', 'numero_inscritos')
 
     def get_search_results(self, request, queryset, search_term):
         search_term = search_term.strip()
         if search_term:
             queryset = queryset.filter(
-                entidad__icontains=search_term
-            ) | queryset.filter(
-                nombreEntidad__icontains=search_term
+                entidad__nombre_entidad__icontains=search_term
             )
-        # No se realiza ningún filtrado adicional si no hay término de búsqueda
-        return queryset, False  # El segundo valor False indica que no se han realizado correcciones de búsqueda.
+        return queryset, False
 
-    def get_search_fields(self, request):
-        return self.search_fields
+class NivelAdmin(ImportExportModelAdmin):
+    resource_class = NivelResource
+    search_fields = ['entidad__nombre_entidad']
+    list_display = ('id','entidad', 'nivel_esperado', 'nivel_obtenido')
 
-# Registrar el modelo Avance en el panel de administración con la funcionalidad personalizada
+class EntidadAdmin(ImportExportModelAdmin):
+    resource_class = EntidadResource
+    search_fields = ['nombre_entidad']
+    list_display = ('nombre_entidad', 'numero_de_distritos', 'logo')
+
+class PeriodoAdmin(ImportExportModelAdmin):
+    resource_class = PeriodoResource
+    search_fields = ['anio_inicio', 'anio_fin']
+    list_display = ('id','anio_inicio', 'anio_fin')
+
+# Registrar los modelos en el panel de administración
 admin.site.register(Avance, AvanceAdmin)
+admin.site.register(Nivel, NivelAdmin)
+admin.site.register(Entidad, EntidadAdmin)
+admin.site.register(Periodo, PeriodoAdmin)
