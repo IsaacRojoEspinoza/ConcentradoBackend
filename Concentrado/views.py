@@ -12,11 +12,18 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
+
 
 @csrf_exempt
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def Obtener_periodos_y_entidades(request):
-    periodos = Periodo.objects.all()
+    periodo_id = request.GET.get('periodo', None)  # Fetch 'periodo' parameter from the request
+
+    # Conditionally filter Periodo based on periodo_id
+    periodos = Periodo.objects.filter(id=periodo_id) if periodo_id else Periodo.objects.all()
+    
     data = []
 
     for periodo in periodos:
@@ -36,6 +43,7 @@ def Obtener_periodos_y_entidades(request):
         })
 
     return Response(data)
+@csrf_exempt
 
 def avance_totales_view(request):
     if request.method == 'GET':
@@ -55,6 +63,7 @@ def avance_totales_view(request):
         }
 
         return JsonResponse(data)
+    
 @csrf_exempt
 def Avance_view(request):
     if request.method == 'GET':
