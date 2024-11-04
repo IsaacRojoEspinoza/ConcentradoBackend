@@ -25,7 +25,7 @@ class NivelAdmin(ImportExportModelAdmin):
 class EntidadAdmin(ImportExportModelAdmin):
     resource_class = EntidadResource
     search_fields = ['nombre_entidad']
-    list_display = ('nombre_entidad', 'numero_de_distritos', 'logo')
+    list_display = ('numero','nombre_entidad', 'logo')
 
 class PeriodoAdmin(ImportExportModelAdmin):
     resource_class = PeriodoResource

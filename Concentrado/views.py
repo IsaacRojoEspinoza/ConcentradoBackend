@@ -29,7 +29,6 @@ def Obtener_periodos_y_entidades(request):
                 {
                     'id': entidad.numero,
                     'nombre': entidad.nombre_entidad,
-                    'numero_de_distritos': entidad.numero_de_distritos,
                     'logo': entidad.logo,
                 }
                 for entidad in entidades
@@ -106,9 +105,8 @@ def Avance_view(request):
 @csrf_exempt
 def Nivel_Api(request):
     if request.method == 'GET':
-        # Usa JSONParser para obtener los datos del cuerpo
-        data = JSONParser().parse(request)
-        entidad_id = data.get('entidad', None)  # Obtén el ID de la entidad desde el cuerpo
+        # Obtén el ID de la entidad desde los parámetros de consulta
+        entidad_id = request.GET.get('entidad', None)  
         
         response_data = {}
 

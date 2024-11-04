@@ -7,16 +7,10 @@ class Periodo(models.Model):
     def __str__(self):
         return f"{self.anio_inicio}-{self.anio_fin}"
 
-    def save(self, *args, **kwargs):
-        if self.anio_inicio >= self.anio_fin:
-            raise ValueError("El año de inicio debe ser menor que el año de fin.")
-        super().save(*args, **kwargs)
-
 class Entidad(models.Model):
     numero = models.AutoField(primary_key=True)
     nombre_entidad = models.CharField(max_length=255)
-    numero_de_distritos = models.IntegerField()
-    logo = models.CharField(max_length=255, default='public/assets/default_logo.png')
+    logo = models.CharField(max_length=255, default='public/assets/')
 
     def __str__(self):
         return self.nombre_entidad
