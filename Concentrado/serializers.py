@@ -3,13 +3,28 @@ from Concentrado.models import Avance, Nivel, Entidad, Periodo
 from django.contrib.auth.models import User
 
 class AvanceSerializer(serializers.ModelSerializer):
-    entidad = serializers.StringRelatedField()  # Muestra el nombre de la entidad en vez de su ID
     periodo = serializers.StringRelatedField()  # Muestra el periodo en formato 'anio_inicio-anio_fin'
+    numero_entidad = serializers.IntegerField(source='entidad.numero', read_only=True)  # ID de la entidad
+    nombre = serializers.CharField(source='entidad.nombre_entidad', read_only=True)  # Nombre de la entidad
 
     class Meta:
         model = Avance
-        fields = '__all__'
-
+        fields = [
+            'id',
+            'periodo',
+            'numero_entidad',
+            'nombre',
+            'distrito',
+            'numero_designados',
+            'numero_inscritos',
+            'inscritos_designados',
+            'con_ingreso',
+            'con_ingreso_inscritos',
+            'sin_ingreso',
+            'sin_ingreso_inscritos',
+            'concluyeron',
+            'concluyeron_designados'
+        ]
 class NivelSerializer(serializers.ModelSerializer):
     entidad = serializers.StringRelatedField()  # Muestra el nombre de la entidad en vez de su ID
     periodo = serializers.StringRelatedField()  # Muestra el periodo en formato 'anio_inicio-anio_fin'
